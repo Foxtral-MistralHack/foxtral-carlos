@@ -1,8 +1,7 @@
-[gd_scene format=3 uid="uid://cbxymfd1lfhpr"]
+[gd_scene format=3 uid="uid://dfgr7ggxebfv6"]
 
 [ext_resource type="Script" uid="uid://cwi2fuu5eo8c8" path="res://test_mic.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://d1riij28qp6ov" path="res://assets/sprites/fox_sprite_sheet.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/backgrounds/background.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://bx7wwdwla8kw7" path="res://assets/sprites/fox_sprite_sheet.png" id="2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_catch_0"]
 atlas = ExtResource("2")
@@ -297,8 +296,7 @@ animations = [{
 [node name="TestMic" type="Node" unique_id=1076527349]
 script = ExtResource("1")
 
-[node name="Background" type="Sprite2D" parent="."]
-texture = ExtResource("3")
+[node name="Background" type="Sprite2D" parent="." unique_id=2022084683]
 texture_filter = 1
 position = Vector2(540, 300)
 scale = Vector2(2, 2)

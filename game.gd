@@ -36,6 +36,7 @@ func _ready() -> void:
 	VOXTRAL_MODEL_PATH = project_dir + "voxtral.cpp/models/voxtral/Q4_0.gguf"
 	LLAMA_MODEL_PATH = project_dir + "llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
 
+	_setup_background()
 	_register_world()
 	_setup_ui()
 	_setup_mic_bus()
@@ -49,6 +50,28 @@ func _ready() -> void:
 
 	_setup_voxtral()
 	_setup_llama()
+
+# ── Background ───────────────────────────────────────────────────────────────
+
+func _setup_background() -> void:
+	var path := "res://assets/backgrounds/background.jpg"
+	var img := Image.new()
+	var err := img.load(path)
+	if err != OK:
+		_log("[color=yellow]Background load failed: %s[/color]" % error_string(err))
+		return
+	var bg_tex := ImageTexture.create_from_image(img)
+	var bg := Sprite2D.new()
+	bg.texture = bg_tex
+	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	bg.scale = Vector2(
+		1152.0 / bg_tex.get_width(),
+		648.0 / bg_tex.get_height()
+	)
+	$World.add_child(bg)
+	$World.move_child(bg, 0)
+
+
 
 
 # ── World registry ───────────────────────────────────────────────────────────
