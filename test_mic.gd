@@ -5,8 +5,8 @@ extends Node
 ## Hold SPACE to record, release to transcribe with Voxtral,
 ## then feed the transcript into llama.cpp for a response.
 
-const VOXTRAL_MODEL_PATH := "/Users/shinchan/src/hacks/foxtral-assetsv2/foxtral-carlos/voxtral.cpp/models/voxtral/Q4_0.gguf"
-const LLAMA_MODEL_PATH := "/Users/shinchan/src/hacks/foxtral-assetsv2/foxtral-carlos/llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
+var VOXTRAL_MODEL_PATH: String
+var LLAMA_MODEL_PATH: String
 
 const CAPTURE_BUS_NAME := "MicCapture"
 
@@ -26,6 +26,10 @@ var peak_level := 0.0
 
 
 func _ready() -> void:
+	var project_dir := ProjectSettings.globalize_path("res://")
+	VOXTRAL_MODEL_PATH = project_dir + "voxtral.cpp/models/voxtral/Q4_0.gguf"
+	LLAMA_MODEL_PATH = project_dir + "llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
+
 	_setup_ui()
 	_setup_mic_bus()
 	_setup_mic_player()

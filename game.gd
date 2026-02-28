@@ -6,8 +6,8 @@ extends Node2D
 ## interprets it as a Mistral-style function call, and the result is
 ## dispatched to the appropriate fox(es).
 
-const VOXTRAL_MODEL_PATH := "/Users/carloshurtado/Documents/projects/foxtral-carlos/voxtral.cpp/models/voxtral/Q4_0.gguf"
-const LLAMA_MODEL_PATH := "/Users/carloshurtado/Documents/projects/foxtral-carlos/llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
+var VOXTRAL_MODEL_PATH: String
+var LLAMA_MODEL_PATH: String
 
 const CAPTURE_BUS_NAME := "MicCapture"
 
@@ -32,6 +32,10 @@ var _llm_accumulator: String = ""
 
 
 func _ready() -> void:
+	var project_dir := ProjectSettings.globalize_path("res://")
+	VOXTRAL_MODEL_PATH = project_dir + "voxtral.cpp/models/voxtral/Q4_0.gguf"
+	LLAMA_MODEL_PATH = project_dir + "llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
+
 	_register_world()
 	_setup_ui()
 	_setup_mic_bus()
