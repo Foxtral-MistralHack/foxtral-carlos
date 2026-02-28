@@ -26,3 +26,4 @@ driver/enable_input=true
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+environment/default_clear_color=Color(0.53, 0.81, 0.98, 1)
