@@ -54,7 +54,7 @@ func _ready() -> void:
 # ── Background ───────────────────────────────────────────────────────────────
 
 func _setup_background() -> void:
-	var path := "res://assets/backgrounds/background.jpg"
+	var path := "res://assets/backgrounds/background.png"
 	var img := Image.new()
 	var err := img.load(path)
 	if err != OK:
@@ -228,26 +228,23 @@ func _build_system_prompt() -> String:
 	var fox_names := ", ".join(foxes.keys())
 	var loc_names := ", ".join(locations.keys())
 
-	var fox_actions := '["move_to","sit","jump","eat","hide","show","howl","patrol","stop","steal"]'
+	var fox_actions := '["move_to","howl"]'
 
-	return """You control foxes in a game by outputting JSON function calls.
+	return """You control foxes in a game. Output ONLY a JSON array of actions, nothing else.
 
 Foxes: %s
 Locations: %s
 Actions: %s
 
-"move_to" requires "foxes" (array of fox names or "all") and "target" (location name).
-All other actions require only "foxes" (array of fox names or "all").
+"move_to" needs "foxes" and "target". Other actions need only "foxes".
+Use ["all"] for everyone.
 
-If the user says "everyone" or "all foxes" use ["all"].
-
-RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT:
-[{"name":"<action>","arguments":{"foxes":[...],...}}]
+Output format (no markdown, no extra text):
+[{"name":"<action>","arguments":{"foxes":[...],"target":"<loc>"}}]
 
 Examples:
-User: Everyone move to the forest -> [{"name":"move_to","arguments":{"foxes":["all"],"target":"forest"}}]
-User: Ruby sit -> [{"name":"sit","arguments":{"foxes":["Ruby"]}}]
-User: Finn and Blaze howl -> [{"name":"howl","arguments":{"foxes":["Finn","Blaze"]}}]""" % [fox_names, loc_names, fox_actions]
+"Everyone move to the forest" -> [{"name":"move_to","arguments":{"foxes":["all"],"target":"forest"}}]
+"Ruby howl" -> [{"name":"howl","arguments":{"foxes":["Ruby"]}}]""" % [fox_names, loc_names, fox_actions]
 
 
 func _on_llm_model_loaded() -> void:
@@ -271,6 +268,15 @@ func _on_llm_done(full_text: String) -> void:
 func _parse_and_dispatch(raw: String) -> void:
 	var text := raw.strip_edges()
 
+	# Strip markdown code blocks (LLMs often wrap JSON in ```json ... ```)
+	if "```" in text:
+		var begin_md := text.find("```")
+		var after_backticks := text.substr(begin_md + 3).strip_edges()
+		if after_backticks.begins_with("json"):
+			after_backticks = after_backticks.substr(4).strip_edges()
+		var end_md := after_backticks.find("```")
+		text = after_backticks.substr(0, end_md if end_md >= 0 else after_backticks.length()).strip_edges()
+
 	if text.begins_with("[TOOL_CALLS]"):
 		text = text.substr(len("[TOOL_CALLS]")).strip_edges()
 
@@ -281,10 +287,19 @@ func _parse_and_dispatch(raw: String) -> void:
 		return
 
 	var json_str := text.substr(start, end - start + 1)
-	var parsed = JSON.parse_string(json_str)
+	# Fix common LLM mistakes: trailing commas before } or ]
+	var re_trail := RegEx.new()
+	re_trail.compile(",\\s*}")
+	json_str = re_trail.sub(json_str, "}", true)
+	re_trail.compile(",\\s*]")
+	json_str = re_trail.sub(json_str, "]", true)
 
+	var parsed = JSON.parse_string(json_str)
+	if parsed == null:
+		_log("[color=yellow]JSON parse error. Raw snippet: %s[/color]" % json_str.substr(0, 200))
+		return
 	if not parsed is Array or parsed.size() == 0:
-		_log("[color=yellow]Failed to parse tool call JSON: %s[/color]" % json_str)
+		_log("[color=yellow]Expected JSON array of tool calls. Got: %s[/color]" % str(parsed).substr(0, 100))
 		return
 
 	for tool_call in parsed:
@@ -294,7 +309,7 @@ func _parse_and_dispatch(raw: String) -> void:
 
 func _dispatch_tool_call(tc: Dictionary) -> void:
 	var fn_name: String = tc.get("name", "")
-	var args: Dictionary = tc.get("arguments", {})
+	var args: Dictionary = tc.get("arguments", tc.get("args", {}))
 	var fox_names: Array = args.get("foxes", ["all"])
 	var target_foxes := _resolve_foxes(fox_names)
 
@@ -315,24 +330,10 @@ func _dispatch_tool_call(tc: Dictionary) -> void:
 					fox.move_to(loc + Vector2(randf_range(-30, 30), randf_range(-30, 30)))
 			else:
 				_log("[color=yellow]Unknown location: %s[/color]" % target_key)
-		"sit":
-			for fox in target_foxes: fox.sit()
-		"jump":
-			for fox in target_foxes: fox.jump()
-		"eat":
-			for fox in target_foxes: fox.eat()
-		"hide":
-			for fox in target_foxes: fox.hide_fox()
-		"show":
-			for fox in target_foxes: fox.show_fox()
 		"howl":
 			for fox in target_foxes: fox.howl()
-		"patrol":
-			for fox in target_foxes: fox.patrol()
 		"stop":
 			for fox in target_foxes: fox.stop_action()
-		"steal":
-			for fox in target_foxes: fox.steal()
 		_:
 			_log("[color=yellow]Unknown function: %s[/color]" % fn_name)
 
