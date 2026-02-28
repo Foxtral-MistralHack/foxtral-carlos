@@ -6,7 +6,7 @@ extends Node
 ## then feed the transcript into llama.cpp for a response.
 
 const VOXTRAL_MODEL_PATH := "/Users/carloshurtado/Documents/projects/foxtral-carlos/voxtral.cpp/models/voxtral/Q4_0.gguf"
-const LLAMA_MODEL_PATH := "/Users/carloshurtado/Documents/projects/foxtral-carlos/llama.cpp/models/model.gguf"
+const LLAMA_MODEL_PATH := "/Users/carloshurtado/Documents/projects/foxtral-carlos/llama.cpp/models/mistralai_Ministral-3-8B-Instruct-2512-Q4_K_M.gguf"
 
 const CAPTURE_BUS_NAME := "MicCapture"
 
@@ -162,6 +162,7 @@ func _setup_llama() -> void:
 	llm.context_size = 2048
 	llm.temperature = 0.7
 	llm.max_tokens = 256
+	llm.system_prompt = "You are a helpful voice assistant. Respond concisely."
 	llm.token_generated.connect(_on_llm_token)
 	llm.generation_completed.connect(_on_llm_done)
 	llm.model_loaded.connect(_on_llm_model_loaded)

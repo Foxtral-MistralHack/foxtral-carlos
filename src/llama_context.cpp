@@ -36,6 +36,8 @@ void LlamaContext::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_top_p"), &LlamaContext::get_top_p);
     ClassDB::bind_method(D_METHOD("set_top_k", "k"), &LlamaContext::set_top_k);
     ClassDB::bind_method(D_METHOD("get_top_k"), &LlamaContext::get_top_k);
+    ClassDB::bind_method(D_METHOD("set_system_prompt", "prompt"), &LlamaContext::set_system_prompt);
+    ClassDB::bind_method(D_METHOD("get_system_prompt"), &LlamaContext::get_system_prompt);
     ClassDB::bind_method(D_METHOD("get_is_running"), &LlamaContext::get_is_running);
     ClassDB::bind_method(D_METHOD("get_is_loaded"), &LlamaContext::get_is_loaded);
 
@@ -45,6 +47,7 @@ void LlamaContext::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::INT, "max_tokens"), "set_max_tokens", "get_max_tokens");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "top_p"), "set_top_p", "get_top_p");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "top_k"), "set_top_k", "get_top_k");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "system_prompt"), "set_system_prompt", "get_system_prompt");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_running"), "", "get_is_running");
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "is_loaded"), "", "get_is_loaded");
 
@@ -129,14 +132,39 @@ void LlamaContext::stop_generation() {
     }
 }
 
+std::string LlamaContext::_apply_chat_template(const std::string &user_message) const {
+    std::vector<llama_chat_message> messages;
+
+    if (!system_prompt_.empty()) {
+        messages.push_back({"system", system_prompt_.c_str()});
+    }
+    messages.push_back({"user", user_message.c_str()});
+
+    const char *tmpl = llama_model_chat_template(model_, nullptr);
+
+    int32_t len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, nullptr, 0);
+    if (len < 0) {
+        UtilityFunctions::printerr("LlamaContext: chat template not supported, using raw prompt");
+        return user_message;
+    }
+
+    std::string formatted(len, '\0');
+    llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size() + 1);
+    return formatted;
+}
+
 void LlamaContext::_generation_thread(const std::string &prompt_text) {
     running_.store(true);
 
+    llama_memory_clear(llama_get_memory(ctx_), true);
+
+    std::string formatted = _apply_chat_template(prompt_text);
+
     const llama_vocab *vocab = llama_model_get_vocab(model_);
 
-    int n_prompt_tokens = -llama_tokenize(vocab, prompt_text.c_str(), prompt_text.size(), nullptr, 0, true, true);
+    int n_prompt_tokens = -llama_tokenize(vocab, formatted.c_str(), formatted.size(), nullptr, 0, true, true);
     std::vector<llama_token> tokens(n_prompt_tokens);
-    llama_tokenize(vocab, prompt_text.c_str(), prompt_text.size(), tokens.data(), tokens.size(), true, true);
+    llama_tokenize(vocab, formatted.c_str(), formatted.size(), tokens.data(), tokens.size(), true, true);
 
     if (tokens.empty()) {
         running_.store(false);
@@ -212,6 +240,9 @@ float LlamaContext::get_top_p() const { return top_p_; }
 
 void LlamaContext::set_top_k(int k) { top_k_ = k; }
 int LlamaContext::get_top_k() const { return top_k_; }
+
+void LlamaContext::set_system_prompt(const String &prompt) { system_prompt_ = prompt.utf8().get_data(); }
+String LlamaContext::get_system_prompt() const { return String::utf8(system_prompt_.c_str()); }
 
 bool LlamaContext::get_is_running() const { return running_.load(); }
 bool LlamaContext::get_is_loaded() const { return model_ != nullptr && ctx_ != nullptr; }

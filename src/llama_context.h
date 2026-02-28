@@ -49,16 +49,21 @@ public:
     void set_top_k(int k);
     int get_top_k() const;
 
+    void set_system_prompt(const String &prompt);
+    String get_system_prompt() const;
+
     bool get_is_running() const;
     bool get_is_loaded() const;
 
 private:
     void _generation_thread(const std::string &prompt_text);
+    std::string _apply_chat_template(const std::string &user_message) const;
 
     struct llama_model *model_ = nullptr;
     struct llama_context *ctx_ = nullptr;
 
     String model_path_;
+    std::string system_prompt_;
     int context_size_ = 2048;
     float temperature_ = 0.8f;
     int max_tokens_ = 512;
