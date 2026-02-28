@@ -1,0 +1,56 @@
+[gd_scene load_steps=4 format=3 uid="uid://game_scene"]
+
+[ext_resource type="Script" path="res://game.gd" id="1"]
+[ext_resource type="Script" path="res://fox.gd" id="2"]
+[ext_resource type="Script" path="res://game_object.gd" id="3"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1")
+
+[node name="World" type="Node2D" parent="."]
+position = Vector2(576, 324)
+
+[node name="Forest" type="Node2D" parent="World"]
+script = ExtResource("3")
+position = Vector2(-350, -50)
+label_name = "Forest"
+object_color = Color(0.2, 0.65, 0.2, 1)
+shape_type = "triangle_cluster"
+
+[node name="House" type="Node2D" parent="World"]
+script = ExtResource("3")
+position = Vector2(350, -50)
+label_name = "House"
+object_color = Color(0.72, 0.38, 0.25, 1)
+shape_type = "rect"
+
+[node name="Chickens" type="Node2D" parent="World"]
+script = ExtResource("3")
+position = Vector2(0, 220)
+label_name = "Chickens"
+object_color = Color(1, 0.85, 0.2, 1)
+shape_type = "circle"
+
+[node name="Fox1" type="Node2D" parent="World"]
+script = ExtResource("2")
+position = Vector2(-120, 60)
+fox_id = "Fox1"
+fox_color = Color(1, 0.5, 0, 1)
+
+[node name="Fox2" type="Node2D" parent="World"]
+script = ExtResource("2")
+position = Vector2(120, 60)
+fox_id = "Fox2"
+fox_color = Color(0.9, 0.35, 0.1, 1)
+
+[node name="Fox3" type="Node2D" parent="World"]
+script = ExtResource("2")
+position = Vector2(-80, -80)
+fox_id = "Fox3"
+fox_color = Color(0.8, 0.55, 0.15, 1)
+
+[node name="Fox4" type="Node2D" parent="World"]
+script = ExtResource("2")
+position = Vector2(80, -80)
+fox_id = "Fox4"
+fox_color = Color(0.7, 0.3, 0.05, 1)
