@@ -75,7 +75,7 @@ func _build_visuals() -> void:
 	_label.add_theme_font_size_override("font_size", 13)
 	_label.add_theme_color_override("font_color", Color.WHITE)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.position = Vector2(-30, -55)
+	_label.position = Vector2(-30, -25)
 	_label.size = Vector2(60, 20)
 	add_child(_label)
 
@@ -103,6 +103,18 @@ func _kill_patrol() -> void:
 	if _patrol_tween and _patrol_tween.is_valid():
 		_patrol_tween.kill()
 	_patrol_tween = null
+
+
+func show_confusion() -> void:
+	var qm := Sprite2D.new()
+	qm.texture = load("res://question_mark.png") as Texture2D
+	qm.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	qm.position = Vector2(0, -50)
+	qm.scale = Vector2(0.04, 0.04)  # Original is 2000x1116; scale to ~80px
+	add_child(qm)
+	var tween := create_tween()
+	tween.tween_interval(2.0)
+	tween.tween_callback(func(): qm.queue_free())
 
 
 func _build_chicken_icon() -> Node2D:

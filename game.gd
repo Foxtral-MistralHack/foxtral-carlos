@@ -300,6 +300,7 @@ func _parse_and_dispatch(raw: String) -> void:
 	var end := text.rfind("]")
 	if start == -1 or end == -1 or end <= start:
 		_log("[color=yellow]Could not find JSON array in LLM response[/color]")
+		_show_confusion_on_foxes()
 		return
 
 	var json_str := text.substr(start, end - start + 1)
@@ -313,14 +314,22 @@ func _parse_and_dispatch(raw: String) -> void:
 	var parsed = JSON.parse_string(json_str)
 	if parsed == null:
 		_log("[color=yellow]JSON parse error. Raw snippet: %s[/color]" % json_str.substr(0, 200))
+		_show_confusion_on_foxes()
 		return
 	if not parsed is Array or parsed.size() == 0:
 		_log("[color=yellow]Expected JSON array of tool calls. Got: %s[/color]" % str(parsed).substr(0, 100))
+		_show_confusion_on_foxes()
 		return
 
 	for tool_call in parsed:
 		if tool_call is Dictionary:
 			_dispatch_tool_call(tool_call)
+
+
+func _show_confusion_on_foxes() -> void:
+	for fox in foxes.values():
+		if fox.has_method("show_confusion"):
+			fox.show_confusion()
 
 
 func _dispatch_tool_call(tc: Dictionary) -> void:
