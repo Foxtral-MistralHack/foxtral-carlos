@@ -38,6 +38,7 @@ func _ready() -> void:
 
 	_setup_background()
 	_register_world()
+	_setup_chickens()
 	_setup_ui()
 	_setup_mic_bus()
 	_setup_mic_player()
@@ -86,6 +87,21 @@ func _register_world() -> void:
 
 	_log("Registered %d foxes: %s" % [foxes.size(), ", ".join(foxes.keys())])
 	_log("Registered %d locations: %s" % [locations.size(), ", ".join(locations.keys())])
+
+
+func _setup_chickens() -> void:
+	var coop := $World.get_node_or_null("Coop")
+	if not coop:
+		return
+	var coop_pos: Vector2 = coop.position + Vector2(0, 50)
+	var chicken_script := load("res://chicken.gd") as GDScript
+	for i in 5:
+		var chicken := Node2D.new()
+		chicken.set_script(chicken_script)
+		chicken.position = coop_pos + Vector2(randf_range(-25, 25), randf_range(-25, 25))
+		chicken.wander_radius = 35.0
+		$World.add_child(chicken)
+		$World.move_child(chicken, 2)  # After Coop, so chickens render behind foxes
 
 
 # ── UI (compact overlay at the bottom) ───────────────────────────────────────
