@@ -17,17 +17,17 @@ label_name = "Forest"
 
 [node name="Coop" type="Node2D" parent="World"]
 script = ExtResource("3")
-position = Vector2(20, -55)
+position = Vector2(170, -100)
 label_name = "Coop"
 
 [node name="House" type="Node2D" parent="World"]
 script = ExtResource("3")
-position = Vector2(320, -130)
+position = Vector2(420, -160)
 label_name = "House"
 
 [node name="Crops" type="Node2D" parent="World"]
 script = ExtResource("3")
-position = Vector2(450, 30)
+position = Vector2(470, 30)
 label_name = "Crops"
 
 [node name="Ruby" type="Node2D" parent="World"]
