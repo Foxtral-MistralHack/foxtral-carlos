@@ -5,6 +5,8 @@ import sys
 
 env = SConscript("godot-cpp/SConstruct")
 
+project_root = Dir("#").abspath
+
 env.Append(CPPPATH=["src/"])
 
 # -- voxtral.cpp (GGUF-based speech-to-text, uses ggml) -----------------------
@@ -37,10 +39,12 @@ env.Append(LIBS=[
 if env["platform"] == "macos":
     env.Append(LINKFLAGS=[
         "-Wl,-rpath,@loader_path",
-        "-Wl,-rpath,@loader_path/../../../voxtral.cpp/build",
-        "-Wl,-rpath,@loader_path/../../../voxtral.cpp/build/ggml/src",
-        "-Wl,-rpath,@loader_path/../../../voxtral.cpp/build/ggml/src/ggml-metal",
-        "-Wl,-rpath,@loader_path/../../../voxtral.cpp/build/ggml/src/ggml-blas",
+        "-Wl,-rpath," + os.path.join(project_root, "voxtral.cpp", "build"),
+        "-Wl,-rpath," + os.path.join(project_root, "voxtral.cpp", "build", "ggml", "src"),
+        "-Wl,-rpath," + os.path.join(project_root, "voxtral.cpp", "build", "ggml", "src", "ggml-metal"),
+        "-Wl,-rpath," + os.path.join(project_root, "voxtral.cpp", "build", "ggml", "src", "ggml-blas"),
+        "-Wl,-rpath," + os.path.join(project_root, "llama.cpp", "build", "bin"),
+        "-Wl,-rpath," + os.path.join(project_root, "llama.cpp", "build", "src"),
     ])
 
 # -- llama.cpp (text generation) -----------------------------------------------
@@ -55,6 +59,7 @@ env.Append(CPPPATH=[
 
 env.Append(LIBPATH=[
     os.path.join(llama_build, "src"),
+    os.path.join(llama_build, "bin"),
     os.path.join(llama_build, "common"),
 ])
 
