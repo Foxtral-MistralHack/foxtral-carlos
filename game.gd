@@ -119,7 +119,7 @@ func _setup_ui() -> void:
 	vbox.add_child(transcript_label)
 
 	var hint := Label.new()
-	hint.text = "Hold SPACE to speak a command  |  e.g. \"Fox 1, move to the forest\""
+	hint.text = "Hold SPACE to speak  |  e.g. \"Ruby, go to the coop\"  \"Everyone, move to the forest\""
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -201,7 +201,7 @@ func _build_system_prompt() -> String:
 	var fox_names := ", ".join(foxes.keys())
 	var loc_names := ", ".join(locations.keys())
 
-	var fox_actions := '["move_to","sit","jump","eat","hide","show","howl","patrol","stop"]'
+	var fox_actions := '["move_to","sit","jump","eat","hide","show","howl","patrol","stop","steal"]'
 
 	return """You control foxes in a game by outputting JSON function calls.
 
@@ -212,15 +212,15 @@ Actions: %s
 "move_to" requires "foxes" (array of fox names or "all") and "target" (location name).
 All other actions require only "foxes" (array of fox names or "all").
 
-If the user says "fox" or "foxes" without a number, use ["all"]. "Fox 1" means ["Fox1"], etc.
+If the user says "everyone" or "all foxes" use ["all"].
 
 RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT:
 [{"name":"<action>","arguments":{"foxes":[...],...}}]
 
 Examples:
-User: Fox move to the forest -> [{"name":"move_to","arguments":{"foxes":["all"],"target":"forest"}}]
-User: Fox 1 sit -> [{"name":"sit","arguments":{"foxes":["Fox1"]}}]
-User: All foxes howl -> [{"name":"howl","arguments":{"foxes":["all"]}}]""" % [fox_names, loc_names, fox_actions]
+User: Everyone move to the forest -> [{"name":"move_to","arguments":{"foxes":["all"],"target":"forest"}}]
+User: Ruby sit -> [{"name":"sit","arguments":{"foxes":["Ruby"]}}]
+User: Finn and Blaze howl -> [{"name":"howl","arguments":{"foxes":["Finn","Blaze"]}}]""" % [fox_names, loc_names, fox_actions]
 
 
 func _on_llm_model_loaded() -> void:
@@ -304,6 +304,8 @@ func _dispatch_tool_call(tc: Dictionary) -> void:
 			for fox in target_foxes: fox.patrol()
 		"stop":
 			for fox in target_foxes: fox.stop_action()
+		"steal":
+			for fox in target_foxes: fox.steal()
 		_:
 			_log("[color=yellow]Unknown function: %s[/color]" % fn_name)
 

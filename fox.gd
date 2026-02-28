@@ -9,12 +9,14 @@ extends Node2D
 enum State { IDLE, MOVING, SITTING, JUMPING, EATING, HIDDEN, HOWLING, PATROLLING }
 
 var state: State = State.IDLE
+var carrying_chicken := false
 var _tween: Tween
 var _patrol_tween: Tween
 var _base_scale: Vector2
 
 var _body: Polygon2D
 var _label: Label
+var _chicken_icon: Node2D
 
 
 func _ready() -> void:
@@ -83,7 +85,47 @@ func _kill_patrol() -> void:
 	_patrol_tween = null
 
 
+func _build_chicken_icon() -> Node2D:
+	var icon := Node2D.new()
+	icon.position = Vector2(16, -8)
+
+	var body_shape := Polygon2D.new()
+	var pts := PackedVector2Array()
+	for a in range(10):
+		var angle := float(a) / 10.0 * TAU
+		pts.append(Vector2(cos(angle) * 5.0, sin(angle) * 5.0))
+	body_shape.polygon = pts
+	body_shape.color = Color(1.0, 0.95, 0.4)
+	icon.add_child(body_shape)
+
+	var beak := Polygon2D.new()
+	beak.polygon = PackedVector2Array([
+		Vector2(5, -1),
+		Vector2(8, 0),
+		Vector2(5, 1),
+	])
+	beak.color = Color(1.0, 0.5, 0.0)
+	icon.add_child(beak)
+
+	return icon
+
+
 # ── Actions ──────────────────────────────────────────────────────────────────
+
+func steal() -> void:
+	if carrying_chicken:
+		return
+	carrying_chicken = true
+	_label.text = fox_id + " [chicken]"
+
+	_chicken_icon = _build_chicken_icon()
+	add_child(_chicken_icon)
+
+	_kill_tween()
+	_tween = create_tween()
+	_tween.tween_property(_chicken_icon, "scale", Vector2(1.3, 1.3), 0.15)
+	_tween.tween_property(_chicken_icon, "scale", Vector2.ONE, 0.15)
+
 
 func move_to(target_pos: Vector2) -> void:
 	_kill_tween()
@@ -101,7 +143,7 @@ func move_to(target_pos: Vector2) -> void:
 
 func _on_move_done() -> void:
 	state = State.IDLE
-	_label.text = fox_id
+	_label.text = fox_id + (" [chicken]" if carrying_chicken else "")
 
 
 func sit() -> void:
@@ -214,4 +256,4 @@ func stop_action() -> void:
 	modulate.a = 1.0
 	_body.color = fox_color
 	state = State.IDLE
-	_label.text = fox_id
+	_label.text = fox_id + (" [chicken]" if carrying_chicken else "")

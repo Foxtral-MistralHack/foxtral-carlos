@@ -24,33 +24,33 @@ label_name = "House"
 object_color = Color(0.72, 0.38, 0.25, 1)
 shape_type = "rect"
 
-[node name="Chickens" type="Node2D" parent="World"]
+[node name="Coop" type="Node2D" parent="World"]
 script = ExtResource("3")
 position = Vector2(0, 220)
-label_name = "Chickens"
+label_name = "Coop"
 object_color = Color(1, 0.85, 0.2, 1)
 shape_type = "circle"
 
-[node name="Fox1" type="Node2D" parent="World"]
+[node name="Ruby" type="Node2D" parent="World"]
 script = ExtResource("2")
 position = Vector2(-120, 60)
-fox_id = "Fox1"
-fox_color = Color(1, 0.5, 0, 1)
+fox_id = "Ruby"
+fox_color = Color(0.85, 0.15, 0.15, 1)
 
-[node name="Fox2" type="Node2D" parent="World"]
+[node name="Finn" type="Node2D" parent="World"]
 script = ExtResource("2")
 position = Vector2(120, 60)
-fox_id = "Fox2"
-fox_color = Color(0.9, 0.35, 0.1, 1)
+fox_id = "Finn"
+fox_color = Color(1, 0.5, 0, 1)
 
-[node name="Fox3" type="Node2D" parent="World"]
+[node name="Blaze" type="Node2D" parent="World"]
 script = ExtResource("2")
 position = Vector2(-80, -80)
-fox_id = "Fox3"
-fox_color = Color(0.8, 0.55, 0.15, 1)
+fox_id = "Blaze"
+fox_color = Color(1, 0.65, 0.0, 1)
 
-[node name="Fox4" type="Node2D" parent="World"]
+[node name="Shadow" type="Node2D" parent="World"]
 script = ExtResource("2")
 position = Vector2(80, -80)
-fox_id = "Fox4"
-fox_color = Color(0.7, 0.3, 0.05, 1)
+fox_id = "Shadow"
+fox_color = Color(0.45, 0.3, 0.15, 1)
