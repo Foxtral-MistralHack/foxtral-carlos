@@ -12,12 +12,12 @@ brew install pipx
 pipx install 'huggingface_hub[cli]'
 ```
 
-## 1. Voxtral (Speech-to-Text)
+## 1. Voxtral Realtime 4B (Speech-to-Text)
 
-Download the Voxtral Q4_0 quantized model:
+Download the [Voxtral-Mini-4B-Realtime-2602](https://huggingface.co/andrijdavid/Voxtral-Mini-4B-Realtime-2602-GGUF) Q4_0 quantized model:
 
 ```bash
-hf download mistralai/Voxtral-Mini-3B-2507-GGUF \
+hf download andrijdavid/Voxtral-Mini-4B-Realtime-2602-GGUF \
   --include "Q4_0.gguf" \
   --local-dir ./voxtral.cpp/models/voxtral/
 ```
@@ -25,7 +25,7 @@ hf download mistralai/Voxtral-Mini-3B-2507-GGUF \
 | | |
 |---|---|
 | **Expected path** | `voxtral.cpp/models/voxtral/Q4_0.gguf` |
-| **Size** | ~1.5 GB |
+| **Size** | ~2.5 GB |
 
 ## 2. Ministral 8B (LLM)
 
@@ -48,9 +48,9 @@ Both models run simultaneously in unified memory on macOS (Apple Silicon).
 
 | Component | Memory |
 |-----------|--------|
-| Voxtral Q4_0 | ~1.5 GB |
+| Voxtral Realtime 4B Q4_0 | ~2.5 GB |
 | Ministral 8B Q4_K_M | ~5 GB |
 | Context / overhead | ~1 GB |
-| **Total** | **~7.5 GB** |
+| **Total** | **~8.5 GB** |
 
 A machine with 16 GB of RAM can run both models comfortably.
