@@ -18,11 +18,15 @@ bin/linux/
 bin/windows/
 
 # Large dependencies (cloned/built locally)
-llama.cpp/
 voxtral.c/
-voxtral.cpp/
 voxtral.o/
 shinjiyama/
+
+# Exclude build artifacts and models inside llama.cpp / voxtral.cpp
+llama.cpp/build/
+llama.cpp/models/
+voxtral.cpp/build/
+voxtral.cpp/models/
 
 # Model files
 *.gguf
