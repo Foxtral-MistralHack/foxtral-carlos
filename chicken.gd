@@ -6,6 +6,7 @@ extends Node2D
 @export var wander_radius: float = 30.0
 
 var home_position: Vector2
+var carried := false
 var _wander_tween: Tween
 var _sprite: AnimatedSprite2D
 
@@ -61,7 +62,16 @@ func _kill_wander() -> void:
 	_wander_tween = null
 
 
+func set_carried(_by: Node2D) -> void:
+	carried = true
+	_kill_wander()
+	_sprite.stop()
+	_sprite.frame = 0
+
+
 func _wander_step() -> void:
+	if carried:
+		return
 	var offset := Vector2(randf_range(-wander_radius, wander_radius), randf_range(-wander_radius, wander_radius))
 	var target := home_position + offset
 
@@ -79,6 +89,8 @@ func _wander_step() -> void:
 
 
 func _schedule_next_wander() -> void:
+	if carried:
+		return
 	_sprite.play("idle")
 	_wander_tween = create_tween()
 	_wander_tween.tween_interval(randf_range(0.5, 2.0))

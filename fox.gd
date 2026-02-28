@@ -20,6 +20,8 @@ var _chicken_icon: Node2D
 
 const FRAME_SIZE := Vector2(32, 32)
 const SPRITE_SCALE := 2.5
+const STEAL_RANGE := 80.0
+const CHICKEN_MOUTH_OFFSET := Vector2(24, 30)
 
 const ANIM_DEF := {
 	"idle":  {"row": 0, "frames": 5,  "fps": 6.0,  "loop": true},
@@ -144,19 +146,39 @@ func _build_chicken_icon() -> Node2D:
 
 # ── Actions ──────────────────────────────────────────────────────────────────
 
+func _find_nearby_chicken() -> Node2D:
+	var chickens := get_tree().get_nodes_in_group("chicken")
+	var nearest: Node2D = null
+	var nearest_dist := STEAL_RANGE
+	for c in chickens:
+		if c.carried:
+			continue
+		var d := global_position.distance_to(c.global_position)
+		if d < nearest_dist:
+			nearest_dist = d
+			nearest = c
+	return nearest
+
+
 func steal() -> void:
 	if carrying_chicken:
 		return
+
+	var chicken := _find_nearby_chicken()
+	if not chicken:
+		return
+
 	carrying_chicken = true
 	_update_label()
 
-	_chicken_icon = _build_chicken_icon()
-	add_child(_chicken_icon)
+	chicken.set_carried(self)
+	chicken.reparent(self)
+	chicken.position = CHICKEN_MOUTH_OFFSET
+	chicken.scale.y = -abs(chicken.scale.y)  # Flip upside down
+	chicken.modulate = Color(0.65, 0.65, 0.65)  # Gray tint
+	chicken.z_index = 1  # Render in front of fox
 
-	_kill_tween()
-	_tween = create_tween()
-	_tween.tween_property(_chicken_icon, "scale", Vector2(1.3, 1.3), 0.15)
-	_tween.tween_property(_chicken_icon, "scale", Vector2.ONE, 0.15)
+	_chicken_icon = chicken
 
 
 func move_to(target_pos: Vector2) -> void:

@@ -100,6 +100,7 @@ func _setup_chickens() -> void:
 		chicken.set_script(chicken_script)
 		chicken.position = coop_pos + Vector2(randf_range(-25, 25), randf_range(-25, 25))
 		chicken.wander_radius = 35.0
+		chicken.add_to_group("chicken")
 		$World.add_child(chicken)
 		$World.move_child(chicken, 2)  # After Coop, so chickens render behind foxes
 
@@ -244,7 +245,7 @@ func _build_system_prompt() -> String:
 	var fox_names := ", ".join(foxes.keys())
 	var loc_names := ", ".join(locations.keys())
 
-	var fox_actions := '["move_to","howl"]'
+	var fox_actions := '["move_to","howl","steal"]'
 
 	return """You control foxes in a game. Output ONLY a JSON array of actions, nothing else.
 
@@ -260,7 +261,8 @@ Output format (no markdown, no extra text):
 
 Examples:
 "Everyone move to the forest" -> [{"name":"move_to","arguments":{"foxes":["all"],"target":"forest"}}]
-"Ruby howl" -> [{"name":"howl","arguments":{"foxes":["Ruby"]}}]""" % [fox_names, loc_names, fox_actions]
+"Ruby howl" -> [{"name":"howl","arguments":{"foxes":["Ruby"]}}]
+"Ruby steal" -> [{"name":"steal","arguments":{"foxes":["Ruby"]}}]""" % [fox_names, loc_names, fox_actions]
 
 
 func _on_llm_model_loaded() -> void:
@@ -357,6 +359,8 @@ func _dispatch_tool_call(tc: Dictionary) -> void:
 				_log("[color=yellow]Unknown location: %s[/color]" % target_key)
 		"howl":
 			for fox in target_foxes: fox.howl()
+		"steal":
+			for fox in target_foxes: fox.steal()
 		"stop":
 			for fox in target_foxes: fox.stop_action()
 		_:
